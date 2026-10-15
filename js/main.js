@@ -297,6 +297,25 @@
     }
   }
 
+  /* ---------- light / dark toggle (initial theme is set inline in <head>) ---------- */
+  (function(){
+    var btn = document.getElementById('themeToggle');
+    if(!btn) return;
+    var root = document.documentElement;
+    function sync(){
+      var dark = root.dataset.theme === 'dark';
+      btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    }
+    btn.addEventListener('click', function(){
+      root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      try{ localStorage.setItem('kv-theme', root.dataset.theme); }catch(e){}
+      sync();
+      document.dispatchEvent(new Event('kv-themechange'));
+    });
+    sync();
+  })();
+
   /* ---------- nav active page ---------- */
   (function(){
     var page = document.body.dataset.page || 'home';
@@ -365,6 +384,8 @@
       if(!reduce) requestAnimationFrame(drawFrame);
     }
     window.addEventListener('resize', resizeCanvas);
+    // the animated loop picks up new colors each frame; a static canvas needs a redraw
+    document.addEventListener('kv-themechange', function(){ if(reduce) drawFrame(); });
     resizeCanvas();
     drawFrame();
 
