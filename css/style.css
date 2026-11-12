@@ -550,20 +550,112 @@ section + section:not(.band){padding-top:0;}
   border:1px dashed var(--line-strong); border-radius:50%; pointer-events:none;
 }
 
+/* KrishVerse star: hot core fading to a pink limb, a soft turning corona around it */
 .orrery-sun{
   width:96px; height:96px; border-radius:50%; border:none; padding:0; cursor:pointer; z-index:25;
-  display:grid; place-items:center; color:#fff;
+  display:grid; place-items:center; color:#3b1a6e;
   font-family:var(--font-display); font-weight:700; font-size:13px; letter-spacing:-.01em;
-  background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.5), transparent 34%), linear-gradient(135deg, var(--indigo), var(--violet) 55%, var(--pink));
-  box-shadow:0 0 70px 8px color-mix(in srgb, var(--violet) 40%, transparent), inset -10px -12px 22px rgba(0,0,0,.2);
+  text-shadow:0 0 8px rgba(255,255,255,.8);
+  background:radial-gradient(circle, #fff7ff 0, #f3dcff 24%, #cfa6ff 50%, #a676ff 70%, #d779c9 90%, #f08bc4 100%);
+  box-shadow:
+    0 0 24px 4px rgba(214,170,255,.75),
+    0 0 80px 18px color-mix(in srgb, var(--violet) 38%, transparent),
+    0 0 160px 50px color-mix(in srgb, var(--pink) 14%, transparent);
+}
+.orrery-sun::before{   /* corona rays */
+  content:''; position:absolute; inset:-40%; border-radius:50%; z-index:-1; pointer-events:none;
+  background:repeating-conic-gradient(from 0deg, transparent 0deg, color-mix(in srgb, var(--violet) 32%, transparent) 4deg, transparent 9deg, color-mix(in srgb, var(--pink) 22%, transparent) 13deg, transparent 17deg);
+  -webkit-mask:radial-gradient(closest-side, transparent 57%, #000 60%, transparent 100%);
+          mask:radial-gradient(closest-side, transparent 57%, #000 60%, transparent 100%);
+  animation:orb-spin 80s linear infinite;
+}
+.orrery-sun::after{    /* churning surface */
+  content:''; position:absolute; inset:0; border-radius:50%; z-index:-1; pointer-events:none;
+  background:conic-gradient(from 0deg, rgba(255,255,255,.16), transparent 18%, rgba(255,255,255,.12) 37%, transparent 55%, rgba(255,255,255,.14) 74%, transparent 90%, rgba(255,255,255,.16));
+  animation:orb-spin 40s linear infinite reverse;
 }
 .orrery.zoomed .orrery-sun{pointer-events:none;}
+@keyframes orb-spin{to{transform:rotate(360deg);}}
+/* with WebGL, KrishVerse is the footer's gas giant drawn whole (js/planet.js) */
+.orrery-sun.gl{background:none; box-shadow:none;}
+.orrery-sun.gl::before, .orrery-sun.gl::after{display:none;}
+.sun-canvas{position:absolute; left:-48px; top:-48px; width:192px; height:192px; pointer-events:none; z-index:-1;}
+.orrery-sun span{position:relative; z-index:1;}
+:root[data-theme="dark"] .orrery-sun.gl{color:#fff; text-shadow:0 1px 8px rgba(20,8,50,.9);}
 
-.orrery-planet{
-  border-radius:50%; border:none; padding:0; cursor:pointer;
-  background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.55), transparent 34%), linear-gradient(135deg, var(--pa), var(--pb));
-  box-shadow:inset -8px -10px 18px rgba(0,0,0,.22), 0 10px 30px -8px color-mix(in srgb, var(--pa) 65%, transparent);
+/* planets: a textured surface that turns inside a sphere, lit from the star.
+   orbit.js sets --lx/--ly (the sunlit point) every frame */
+.orrery-planet{border-radius:50%; border:none; padding:0; cursor:pointer; background:none;}
+.planet-body{
+  position:absolute; inset:0; border-radius:50%; overflow:hidden; z-index:1;
+  box-shadow:0 0 22px -2px color-mix(in srgb, var(--pa) 55%, transparent);
 }
+.planet-surface{
+  position:absolute; top:0; left:0; width:200%; height:100%;
+  background-size:50% 100%; background-repeat:repeat-x;
+  animation:planet-turn var(--turn, 40s) linear infinite;
+}
+@keyframes planet-turn{to{transform:translateX(-50%);}}
+.planet-body::after, .orrery-moon::after{   /* day/night shading + specular highlight + atmosphere rim */
+  content:''; position:absolute; inset:0; border-radius:50%; pointer-events:none;
+  background:
+    radial-gradient(circle at var(--lx, 35%) var(--ly, 30%), rgba(255,255,255,.38), transparent 30%),
+    radial-gradient(circle at var(--lx, 35%) var(--ly, 30%), transparent 38%, rgba(8,4,24,.55) 62%, rgba(4,2,14,.88) 88%);
+}
+.planet-body::after{box-shadow:inset 0 0 6px 1px color-mix(in srgb, var(--pa) 60%, transparent);}
+
+/* gas giant: soft bands, eddies and a storm */
+.orrery-planet[data-world="gas"] .planet-surface{
+  --turn:34s;
+  background-image:
+    radial-gradient(ellipse 16% 9% at 30% 62%, #ffe3f2 0, #e6629f 45%, transparent 72%),
+    radial-gradient(ellipse 30% 4% at 70% 33%, rgba(255,230,245,.7), transparent 70%),
+    radial-gradient(ellipse 26% 3% at 15% 80%, rgba(120,40,110,.5), transparent 70%),
+    linear-gradient(180deg, #f9c4e3 0%, #e58cc6 10%, #f6b6dc 18%, #c46aba 28%, #eda2d4 38%, #f9cde8 46%, #b85cae 56%, #e898cf 66%, #f6c0e2 76%, #a9509f 88%, #e590c8 100%);
+}
+/* rocky world: mottled violet crust and craters */
+.orrery-planet[data-world="rock"] .planet-surface{
+  --turn:60s;
+  /* soft, worn craters: shaded floor, faint lit rim, blended into mottled highlands */
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(70,48,150,.5) 0, rgba(70,48,150,.25) 5%, rgba(205,190,255,.22) 7.5%, transparent 10%),
+    radial-gradient(circle at 62% 64%, rgba(70,48,150,.45) 0, rgba(70,48,150,.2) 7%, rgba(205,190,255,.2) 10%, transparent 13%),
+    radial-gradient(circle at 82% 24%, rgba(80,58,160,.4) 0, transparent 6%),
+    radial-gradient(circle at 40% 82%, rgba(80,58,160,.35) 0, transparent 5%),
+    radial-gradient(ellipse 45% 30% at 45% 40%, rgba(80,50,160,.4), transparent 70%),
+    radial-gradient(ellipse 22% 20% at 22% 70%, rgba(80,50,160,.3), transparent 70%),
+    radial-gradient(ellipse 26% 22% at 74% 75%, rgba(205,190,255,.35), transparent 70%),
+    radial-gradient(ellipse 25% 18% at 65% 15%, rgba(205,190,255,.3), transparent 70%),
+    linear-gradient(180deg, #a48cf5, #8166de 50%, #9d84f2);   /* vertical only, so the turning texture tiles without a seam */
+}
+/* ocean world: deep cyan seas, a little land, white cloud streaks */
+.orrery-planet[data-world="ocean"] .planet-surface{
+  --turn:45s;
+  background-image:
+    radial-gradient(ellipse 34% 5% at 30% 28%, rgba(255,255,255,.85), transparent 70%),
+    radial-gradient(ellipse 28% 4% at 72% 58%, rgba(255,255,255,.75), transparent 70%),
+    radial-gradient(ellipse 20% 4% at 50% 82%, rgba(255,255,255,.6), transparent 70%),
+    radial-gradient(ellipse 18% 14% at 64% 36%, #2bb59a 0, #1f8f8a 60%, transparent 72%),
+    radial-gradient(ellipse 14% 18% at 18% 64%, #31b8a0 0, #1d8a86 60%, transparent 72%),
+    linear-gradient(180deg, #6fd3f2, #1d9fd6 30%, #1878c9 70%, #47b8ea);
+}
+/* ringed giant: cream and amber bands */
+.orrery-planet[data-world="ringed"] .planet-surface{
+  --turn:38s;
+  background-image:
+    radial-gradient(ellipse 30% 3% at 40% 44%, rgba(255,240,220,.7), transparent 70%),
+    linear-gradient(180deg, #ffe0b8 0%, #f8b27a 14%, #ffd5a6 24%, #ec9666 36%, #ffcf9c 48%, #f6ad78 58%, #ffe2be 70%, #e88c62 84%, #f9bf8c 100%);
+}
+.orrery-planet[data-world="ringed"]::before,
+.orrery-planet[data-world="ringed"]::after{   /* back half of the ring behind the planet, front half over it */
+  content:''; position:absolute; left:-62%; right:-62%; top:30%; bottom:30%; pointer-events:none;
+  transform:rotate(-18deg);
+  background:radial-gradient(closest-side, transparent 60%, rgba(255,224,190,.85) 63%, rgba(232,160,112,.55) 70%, rgba(255,230,200,.75) 77%, rgba(214,146,104,.4) 86%, rgba(255,220,180,.25) 94%, transparent 100%);
+}
+.orrery-planet[data-world="ringed"]::before{z-index:0;}
+.orrery-planet[data-world="ringed"]::after{z-index:2; clip-path:inset(50% 0 0 0);}
+.orrery-planet .planet-label{z-index:3;}
+
 .orrery-planet:focus-visible, .orrery-sun:focus-visible{outline:2px solid var(--indigo); outline-offset:4px;}
 .planet-label{
   position:absolute; top:calc(100% + var(--lg, 8px)); left:50%; transform:translateX(-50%);
@@ -575,13 +667,19 @@ section + section:not(.band){padding-top:0;}
 .orrery.zoomed .planet-label{opacity:0;}
 
 .orrery-moon{
-  width:14px; height:14px; margin:-7px 0 0 -7px; border-radius:50%;
-  background:linear-gradient(135deg, var(--pa), var(--pb));
-  box-shadow:0 0 0 3px var(--bg), 0 0 12px color-mix(in srgb, var(--pa) 55%, transparent);
-  transition:box-shadow .2s ease;
+  width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:50%;
+  transition:width .4s ease, height .4s ease, margin .4s ease, box-shadow .2s ease;
+  /* small cratered moon, tinted with its planet's colour */
+  background:
+    radial-gradient(circle at 30% 62%, rgba(40,30,60,.45) 0 12%, transparent 16%),
+    radial-gradient(circle at 66% 30%, rgba(40,30,60,.4) 0 9%, transparent 13%),
+    radial-gradient(circle at 70% 72%, rgba(255,255,255,.25) 0 8%, transparent 12%),
+    linear-gradient(150deg, color-mix(in srgb, var(--pa) 55%, #d9d4e6), color-mix(in srgb, var(--pb) 45%, #8f88a3));
+  box-shadow:0 0 10px color-mix(in srgb, var(--pa) 40%, transparent);
 }
+.orrery-moon.in-focus{width:28px; height:28px; margin:-14px 0 0 -14px;}   /* project moons grow when their system is zoomed */
 .orrery-moon::before{content:''; position:absolute; inset:-9px; border-radius:50%;}   /* bigger hit area */
-.orrery-moon:hover, .orrery-moon:focus-visible{outline:none; box-shadow:0 0 0 3px var(--bg), 0 0 0 5px var(--pa), 0 0 18px var(--pa);}
+.orrery-moon:hover, .orrery-moon:focus-visible{outline:none; box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--pa), 0 0 18px var(--pa);}
 .moon-label{
   position:absolute; top:50%; left:calc(100% + 10px); transform:translateY(-50%);
   white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .35s ease;

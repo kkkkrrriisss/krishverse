@@ -17,6 +17,7 @@
   var ORBIT_X = [0.17, 0.26, 0.355, 0.45];   // orbit radius as a share of the stage width
   var PERIOD = [48, 72, 100, 132];           // seconds per lap - inner planets run faster
   var START = [0.4, 2.3, 4.2, 5.7];          // starting angle, spread round the sun
+  var WORLD = ['gas', 'rock', 'ocean', 'ringed'];   // surface style per planet, matching PALETTE
 
   function make(tag, cls, html){
     var el = document.createElement(tag);
@@ -25,6 +26,13 @@
     return el;
   }
   function lerp(a, b, t){ return a + (b - a) * t; }
+  // point the lit side of a body at (sx, sy); `still` blends towards a fixed upper-left light
+  function light(el, x, y, sx, sy, still){
+    var dx = sx - x, dy = sy - y, d = Math.hypot(dx, dy) || 1;
+    var ux = lerp(dx / d, -0.6, still), uy = lerp(dy / d, -0.6, still);
+    el.style.setProperty('--lx', (50 + ux * 30).toFixed(1) + '%');
+    el.style.setProperty('--ly', (50 + uy * 30).toFixed(1) + '%');
+  }
   function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
   function domainOf(url){ return url.replace(/^https?:\/\//,'').replace(/\/$/,''); }
 
@@ -32,6 +40,26 @@
   var sun = make('button', 'orrery-sun', '<span>KrishVerse</span>');
   sun.type = 'button';
   sun.setAttribute('aria-label', 'KrishVerse, show all systems');
+
+  // KrishVerse itself: the same gas giant as the footer, drawn whole (js/planet.js)
+  var SUN_BOX = 192;   // canvas size in css px: the 96px planet plus room for its glow
+  var sunGL = null;
+  if(window.KVPlanet){
+    var sunCanvas = make('canvas', 'sun-canvas');
+    sunCanvas.setAttribute('aria-hidden', 'true');
+    sunGL = window.KVPlanet(sunCanvas, {
+      tilt:0.35, spin:0.12, band:14, detail:0.45, maxDpr:2,
+      storm:[0.372, -0.296, 0.879], stormSize:[0.2, 0.09],
+      light:[-0.35, 0.4, 0.85], glow:[4, 12, 26],
+      place:function(w, h){ return {cx:w / 2, cy:h / 2, r:46}; }
+    });
+    if(sunGL){
+      sun.insertBefore(sunCanvas, sun.firstChild);
+      sun.classList.add('gl');
+      sunGL.resize(SUN_BOX, SUN_BOX);
+      document.addEventListener('kv-themechange', function(){ sunGL.draw(); });
+    }
+  }
 
   var tip = make('div', 'orrery-tip');
   tip.setAttribute('aria-hidden', 'true');
@@ -48,8 +76,10 @@
     var ring = make('div', 'orrery-ring');
 
     var planet = make('button', 'orrery-planet',
+      '<span class="planet-body"><span class="planet-surface"></span></span>' +
       '<span class="planet-label">' + cat.cat + '<small>' + cat.items.length + ' projects</small></span>');
     planet.type = 'button';
+    planet.dataset.world = WORLD[i % WORLD.length];
     planet.style.setProperty('--pa', pal[0]);
     planet.style.setProperty('--pb', pal[1]);
     planet.setAttribute('aria-label', cat.cat + ', ' + cat.items.length + ' projects, zoom in');
@@ -225,9 +255,10 @@
       p.style.opacity = String(fade);
       p.style.zIndex = String(zBase);
       p.style.pointerEvents = fade < 0.5 ? 'none' : '';
+      light(p, px, py, cx, cy, fz);   // a zoomed planet sits on the star, so light it from the upper left
 
       s.spin += dt * speed * (TAU / s.moonPeriod) * (isF ? 0.18 : 1);
-      var moonR = lerp((size / 2 + 18 + (10 + s.moons.length * 1.6) * k) * depthScale, zoomR, fz);
+      var moonR = lerp((size / 2 + 22 + (10 + s.moons.length * 1.8) * k) * depthScale, zoomR, fz);
       var flatten = lerp(0.62, 1, fz);                 // tilted moon orbits, flat-on when zoomed
       // keep the planet's name clear of its moons
       p.style.setProperty('--lg', ((moonR * flatten - size * scale / 2) / scale + 8) + 'px');
@@ -237,6 +268,7 @@
         m.x = px + Math.cos(ma) * moonR;
         m.y = py + sy * moonR * flatten;
         m.el.style.transform = 'translate(' + m.x + 'px,' + m.y + 'px)';
+        light(m.el, m.x, m.y, cx, cy, fz);
         m.el.style.opacity = String(fade);
         m.el.style.pointerEvents = fade < 0.5 ? 'none' : '';
         // moons pass behind their planet on the far half of the orbit
@@ -249,11 +281,12 @@
     placeTip();
   }
 
-  var last = null;
+  var last = null, lastSun = 0;
   function loop(ts){
     var dt = last === null ? 0 : Math.min(0.05, (ts - last) / 1000);
     last = ts;
     if(visible) frame(dt);
+    if(visible && sunGL && ts - lastSun > 33){ lastSun = ts; sunGL.draw(ts); }   // ~30fps is plenty
     requestAnimationFrame(loop);
   }
 

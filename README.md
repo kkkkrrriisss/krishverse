@@ -13,7 +13,7 @@ A concept preview of Krish P's portfolio site - Signal × Orbit direction.
 - `js/main.js` - neural-network background, sliders, reveal-on-scroll, magnetic buttons, theme toggle
 - `js/orbit.js` - Work page solar system (categories as planets, projects as moons)
 - `js/playground.js` - Home page physics playground (uses Matter.js from cdnjs)
-- `js/planet.js` - footer planet, a WebGL gas giant (falls back to the CSS `.footer-horizon` without WebGL)
+- `js/planet.js` - the KrishVerse planet, a WebGL gas giant: the footer horizon (falls back to the CSS `.footer-horizon` without WebGL) and, via `window.KVPlanet`, the centre of the Work page solar system
 - `assets/fonts/` - Bricolage Grotesque, Instrument Serif (italic), Instrument Sans
 - `assets/favicon.svg` - brand mark
 
