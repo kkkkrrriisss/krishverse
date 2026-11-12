@@ -32,6 +32,8 @@ while ($listener.IsListening) {
     $localPath = $request.Url.LocalPath
     if ($localPath -eq "/") { $localPath = "/index.html" }
     $filePath = Join-Path $root ($localPath.TrimStart("/") -replace "/", "\")
+    # clean URLs like GitHub Pages: /about serves about.html
+    if (-not (Test-Path $filePath -PathType Leaf) -and (Test-Path "$filePath.html" -PathType Leaf)) { $filePath = "$filePath.html" }
 
     if (Test-Path $filePath -PathType Leaf) {
         $ext = [System.IO.Path]::GetExtension($filePath).ToLower()
