@@ -44,21 +44,22 @@
       {name:"Cavana SF", url:"https://www.cavanasf.com/", tag:"Squarespace"}
     ]}
   ];
+  window.KV_WORK = WORK; // read by js/orbit.js on the Work page
   var FEATURED = ["Reigning Champ","Schaerer","Jacada Travel","Beyond the Surface","Lorna Jane","Henit"];
 
   var TIMELINE = [
     {range:"2015 – 2016", role:"PHP Developer", org:"Infinity Infoway", loc:"Rajkot, India", note:"Dynamic web applications in PHP, MySQL, HTML, CSS & jQuery."},
-    {range:"2016 – 2018", role:"Full Stack Developer", org:"Workerv", loc:"Remote", note:"Full-time freelance for international clients — PHP, JS, Bootstrap, REST APIs."},
+    {range:"2016 – 2018", role:"Full Stack Developer", org:"Workerv", loc:"Remote", note:"Full-time freelance for international clients: PHP, JS, Bootstrap, REST APIs."},
     {range:"2018 – 2019", role:"Web Developer", org:"Freelance Projects", loc:"Remote", note:"Small business & eCommerce builds, SEO-friendly, full project lifecycle."},
-    {range:"2019 – 2022", role:"Full Stack Developer", org:"Cypherox Technologies", loc:"Ahmedabad, India", note:"Multiple concurrent client projects — WordPress & Shopify, API integrations."},
+    {range:"2019 – 2022", role:"Full Stack Developer", org:"Cypherox Technologies", loc:"Ahmedabad, India", note:"Multiple concurrent client projects: WordPress & Shopify, API integrations."},
     {range:"2022 – Present", role:"Web & Marketing Specialist", org:"Freelance Projects", loc:"Remote", note:"Web builds, SEO strategy & marketing campaigns for global clients."}
   ];
 
   var PHASES = [
-    {n:"01", name:"Understand", desc:"Research, competitor analysis, GA4 & Search Console — before a single page gets built.", tools:["GA4","Looker Studio","GTM","Search Console","Competitor Analysis","Market Research"]},
-    {n:"02", name:"Build", desc:"WordPress, Shopify, Squarespace, Wix, or straight React/PHP — whatever the project actually needs.", tools:["WordPress","Shopify","WooCommerce","React","PHP","JavaScript","Figma","Adobe Suite"]},
-    {n:"03", name:"Optimize", desc:"SEO, CRO, performance, hosting — the unglamorous work that makes the build actually perform.", tools:["On-Page SEO","SEMrush","Ahrefs","PageSpeed Insights","CRO","WP Engine","Cloudflare"]},
-    {n:"04", name:"Grow", desc:"Paid campaigns, automation, AI-assisted workflows — turning a finished site into a running system.", tools:["Google Ads","Meta Ads","HubSpot","GoHighLevel","Zapier","n8n","ChatGPT","Make.com"]}
+    {n:"01", name:"Understand", desc:"Research, competitor analysis, GA4 & Search Console, all before a single page gets built.", tools:["GA4","Looker Studio","GTM","Search Console","Competitor Analysis","Market Research"]},
+    {n:"02", name:"Build", desc:"WordPress, Shopify, Squarespace, Wix, or straight React/PHP: whatever the project actually needs.", tools:["WordPress","Shopify","WooCommerce","React","PHP","JavaScript","Figma","Adobe Suite"]},
+    {n:"03", name:"Optimize", desc:"SEO, CRO, performance, hosting. The unglamorous work that makes the build actually perform.", tools:["On-Page SEO","SEMrush","Ahrefs","PageSpeed Insights","CRO","WP Engine","Cloudflare"]},
+    {n:"04", name:"Grow", desc:"Paid campaigns, automation, AI-assisted workflows, turning a finished site into a running system.", tools:["Google Ads","Meta Ads","HubSpot","GoHighLevel","Zapier","n8n","ChatGPT","Make.com"]}
   ];
 
   var GLOW = [['var(--pink)','var(--violet)'],['var(--indigo)','var(--cyan)'],['var(--violet)','var(--pink)'],['var(--cyan)','var(--indigo)']];
@@ -91,7 +92,7 @@
   if(workCategories){
     workCategories.innerHTML = WORK.map(function(cat, ci){
       var cards = cat.items.map(function(it, ii){ return workCardHTML(it, ci + ii); }).join('');
-      return '<div class="work-cat reveal">'+
+      return '<div class="work-cat reveal" data-cat="'+ci+'">'+
         '<div class="work-cat-head"><h3>'+cat.cat+'</h3><p>'+cat.desc+'</p></div>'+
         '<div class="slider"><div class="slider-track">'+cards+'</div>'+sliderNav()+'</div>'+
       '</div>';
@@ -116,12 +117,11 @@
   if(phaseTrack){
     phaseTrack.innerHTML = PHASES.map(function(p){
       var chips = p.tools.map(function(t){ return '<span class="tool-chip">'+t+'</span>'; }).join('');
-      return '<div class="phase-panel">'+
-        '<p class="pi-label">'+p.n+'</p>'+
-        '<h3>'+p.name+'</h3>'+
-        '<p>'+p.desc+'</p>'+
-        '<div class="tool-row">'+chips+'</div>'+
-      '</div>';
+      return '<li class="phase-row">'+
+        '<span class="phase-num" aria-hidden="true">'+p.n+'</span>'+
+        '<div><h3>'+p.name+'</h3><p>'+p.desc+'</p></div>'+
+        '<div class="phase-tools">'+chips+'</div>'+
+      '</li>';
     }).join('');
   }
 
@@ -187,6 +187,27 @@
   /* ---------- capability map hover: brighten connector lines ---------- */
   function wireCapMap(){
     var lines = document.querySelector('.cap-lines');
+    var map = document.querySelector('.cap-map');
+    // connectors run between the actual icon dots, so they meet them at any width
+    var PAIRS = [['cap-n1','cap-n3'],['cap-n2','cap-n1'],['cap-n3','cap-n4'],['cap-n3','cap-n5'],['cap-n4','cap-n5'],['cap-n2','cap-n5']];
+    function drawLines(){
+      if(!lines || !map) return;
+      var mr = map.getBoundingClientRect();
+      lines.setAttribute('viewBox', '0 0 ' + mr.width + ' ' + mr.height);
+      lines.querySelectorAll('line').forEach(function(ln, i){
+        var pair = PAIRS[i];
+        if(!pair) return;
+        var pts = pair.map(function(cls){
+          var r = map.querySelector('.' + cls + ' .cap-node-dot').getBoundingClientRect();
+          return [r.left + r.width / 2 - mr.left, r.top + r.height / 2 - mr.top];
+        });
+        ln.setAttribute('x1', pts[0][0]); ln.setAttribute('y1', pts[0][1]);
+        ln.setAttribute('x2', pts[1][0]); ln.setAttribute('y2', pts[1][1]);
+      });
+    }
+    drawLines();
+    window.addEventListener('resize', drawLines);
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawLines);
     document.querySelectorAll('.cap-node').forEach(function(node){
       node.addEventListener('mouseenter', function(){ if(lines) lines.classList.add('boost'); });
       node.addEventListener('mouseleave', function(){ if(lines) lines.classList.remove('boost'); });
@@ -397,6 +418,8 @@
       });
     }
   }
+
+  document.querySelectorAll('[data-year]').forEach(function(el){ el.textContent = new Date().getFullYear(); });
 
   fillMissingSliderIcons();
   sprinkleStars();

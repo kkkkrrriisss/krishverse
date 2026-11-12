@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Work — KrishVerse</title>
+<title>Work | KrishVerse</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="The full map of live client work — WordPress, Shopify, React, and GoHighLevel builds across e-commerce, enterprise, and brand sites.">
+<meta name="description" content="The full map of live client work: WordPress, Shopify, React, and GoHighLevel builds across e-commerce, enterprise, and brand sites.">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('kv-theme')==='dark'?'dark':'light';}catch(e){document.documentElement.dataset.theme='light';}</script>
 <link rel="stylesheet" href="css/style.css">
@@ -45,16 +45,57 @@
     <div class="wrap">
       <p class="eyebrow">The Full Map</p>
       <h1>A map, <em>not a list.</em></h1>
-      <p>Every live client project, grouped by what it actually demonstrates &mdash; not just the platform it happens to run on.</p>
+      <p>Every live client project, grouped by what it actually demonstrates, not just the platform it happens to run on.</p>
     </div>
   </div>
+  <section class="orrery-section">
+    <div class="wrap">
+      <div class="orrery-filters" id="orreryFilters" role="toolbar" aria-label="Zoom into a system"></div>
+      <div class="orrery" id="orrery" role="group" aria-label="Project map: four categories orbit KrishVerse, and each project orbits its category"></div>
+      <p class="orrery-hint">
+        <span class="mouse">Hover a moon to see the project &middot; click to visit &middot; click a planet to zoom in</span>
+        <span class="touch">Tap a moon to visit &middot; tap a planet to zoom in</span>
+      </p>
+    </div>
+  </section>
   <section>
-    <div class="wrap" id="workCategories"></div>
+    <div class="wrap">
+      <div class="section-head left reveal">
+        <p class="eyebrow">The List</p>
+        <h2 class="section-title">Every project, <em>side by side.</em></h2>
+      </div>
+      <div id="workCategories"></div>
+    </div>
   </section>
 </main>
 
-<footer>KrishVerse &middot; Krish P &middot; Web Development, SEO &amp; Marketing, Design, Automation</footer>
+<footer class="site-footer">
+  <div class="footer-horizon" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="footer-cta">
+      <p class="eyebrow">Have a project in mind?</p>
+      <a class="footer-mail" href="mailto:krishcodess@gmail.com">krishcodess@gmail.com</a>
+    </div>
+    <div class="footer-bar">
+      <a class="brand" href="index.html">KrishVerse</a>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="index.html" data-route="home">Home</a>
+        <a href="work.html" data-route="work">Work</a>
+        <a href="about.html" data-route="about">About</a>
+        <a href="capabilities.html" data-route="capabilities">Capabilities</a>
+        <a href="contact.html" data-route="contact">Contact</a>
+      </nav>
+      <a href="#" class="to-top" aria-label="Back to top"><span aria-hidden="true">&uarr;</span></a>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span data-year>2026</span> Krish P</span>
+      <span>Web development, SEO, design &amp; automation</span>
+    </div>
+  </div>
+</footer>
 
 <script src="js/main.js"></script>
+<script src="js/planet.js"></script>
+<script src="js/orbit.js"></script>
 </body>
 </html>

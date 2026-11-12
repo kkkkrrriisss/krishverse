@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Capabilities — KrishVerse</title>
+<title>Capabilities | KrishVerse</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Four phases, one throughline — Understand, Build, Optimize, Grow.">
+<meta name="description" content="Four phases, one throughline: Understand, Build, Optimize, Grow.">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('kv-theme')==='dark'?'dark':'light';}catch(e){document.documentElement.dataset.theme='light';}</script>
 <link rel="stylesheet" href="css/style.css">
@@ -45,24 +45,42 @@
     <div class="wrap">
       <p class="eyebrow">Capabilities</p>
       <h1>Four phases, <em>one throughline.</em></h1>
-      <p>Not a tool list &mdash; a sequence. Each phase exists because the one before it isn't enough on its own.</p>
+      <p>Not a tool list. A sequence. Each phase exists because the one before it isn't enough on its own.</p>
     </div>
   </div>
   <section>
     <div class="wrap">
-      <div class="slider phase-slider reveal">
-        <div class="slider-track" id="phaseTrack"></div>
-        <div class="slider-nav">
-          <button class="slider-btn prev" aria-label="Previous phase"></button>
-          <button class="slider-btn next" aria-label="Next phase"></button>
-        </div>
-      </div>
+      <ol class="phase-list reveal" id="phaseTrack"></ol>
     </div>
   </section>
 </main>
 
-<footer>KrishVerse &middot; Krish P &middot; Web Development, SEO &amp; Marketing, Design, Automation</footer>
+<footer class="site-footer">
+  <div class="footer-horizon" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="footer-cta">
+      <p class="eyebrow">Have a project in mind?</p>
+      <a class="footer-mail" href="mailto:krishcodess@gmail.com">krishcodess@gmail.com</a>
+    </div>
+    <div class="footer-bar">
+      <a class="brand" href="index.html">KrishVerse</a>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="index.html" data-route="home">Home</a>
+        <a href="work.html" data-route="work">Work</a>
+        <a href="about.html" data-route="about">About</a>
+        <a href="capabilities.html" data-route="capabilities">Capabilities</a>
+        <a href="contact.html" data-route="contact">Contact</a>
+      </nav>
+      <a href="#" class="to-top" aria-label="Back to top"><span aria-hidden="true">&uarr;</span></a>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span data-year>2026</span> Krish P</span>
+      <span>Web development, SEO, design &amp; automation</span>
+    </div>
+  </div>
+</footer>
 
 <script src="js/main.js"></script>
+<script src="js/planet.js"></script>
 </body>
 </html>
